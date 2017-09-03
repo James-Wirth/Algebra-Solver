@@ -2,7 +2,7 @@
 
 ## Usage ##
 
-The class 'Solver' in 'src/Solver.java' can currently be used to solve linear equations in the form of a string containing '+', '-', '*' & '/'.  
+The class 'Solver' in 'src/Solver.java' can currently be used to solve linear equations in the form of a string containing '+', '-', '*' & '/'.  The solver does this according to the DM-AS order of operations.
 NB: At the moment, there must be a space between all of the terms.
 
 `double solution = Solver.solveLinearEquationFor("x", "2x * 5 - 7x = 24 + 6x / 2x + 4");`
