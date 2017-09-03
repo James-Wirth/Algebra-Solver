@@ -9,6 +9,9 @@ class Solver {
     
     public static double solveLinearEquationFor(String x, String equation){
         
+        //Simplify every instance of a multiplication or a divide
+        equation = expandDM(x, equation);
+        
         //Init scanner to go through string
         Scanner scanner = new Scanner(System.in);
         Scanner equationScanner = new Scanner(equation);
@@ -19,7 +22,7 @@ class Solver {
         double constantTotal = 0;
         double coefficientTotal = 0;
         
-        //Declare 2 boolean variables to hold whether the scanner has gone past the "=" sign
+        //Declare 2 boolean variables to hold whether the scanner has gone past the "=" sign and therefore whether the terms should be added or subtracted from the totals
         boolean positive = true;
         boolean hasPassedEquals = false;
         
@@ -62,15 +65,120 @@ class Solver {
                 positive = hasPassedEquals;
             }
             
-            /*System.out.println(currentWorkingTerm);
-            System.out.println("Const:" + constantTotal);
-            System.out.println("Coeff" + coefficientTotal);  */
         }
         //Now we have put all of the terms into the form: 
         // (coefficient * x) + (constant) = 0
         // Therefore, (coefficient * x) = (-1 * constant)
         // And finally, x = (-1*constant) / coefficient
         return (-1*constantTotal)/coefficientTotal;
+    }
+    
+    public static String expandDM(String x, String equation){
+        
+        //New scanner to go through the string
+        Scanner scanner = new Scanner(System.in);
+        Scanner equationScanner = new Scanner(equation);
+        
+        //Placeholder for current term
+        String currentWorkingTerm; 
+        
+        //The value that will be returned
+        String expanded="";
+        
+        //endIndex and startIndex mark the indexes in the 'equation' string which will be replaced with a shortened term
+        int endIndex, startIndex = 0;
+        //prev and next hold the terms on either side of the operator
+        String prev = "", next = "";
+        
+        //The index of the current operator
+        int operatorIndex = 0;
+
+        //The replacements after a * or / calculation has been made
+        double replacement;
+        String replacementStr;
+        
+        while(equationScanner.hasNext()){
+            
+            currentWorkingTerm = next;
+            next = equationScanner.next();
+            
+            //System.out.println("equation" + equation);
+            
+            //System.out.println("cwt: " + currentWorkingTerm);
+            //System.out.println("n: " + next);
+            //System.out.println("p: " + prev);
+            
+            //If a '*' exists and is further left than a '/' (if it exists), set the operator index to that of the first '*'
+            if(equation.contains("*") && (equation.indexOf("*") < equation.indexOf("/") || !equation.contains("/"))){
+                operatorIndex = equation.indexOf("*");
+            }
+            //If a '/' exists and is further left than a '*' (if it exists), set the operator index to that of the first '/'
+            else if(equation.contains("/") && (equation.indexOf("/") < equation.indexOf("*") || !equation.contains("*"))){
+                operatorIndex = equation.indexOf("/");
+            }
+
+            //Set endIndex to the index of the last character in the current bit of the equation
+            endIndex = equation.indexOf(next.charAt(next.length()-1), operatorIndex);
+
+            
+            switch (currentWorkingTerm) {
+                case "*":
+                {
+                    if(prev.endsWith("x")){
+                        replacement = Double.parseDouble(prev.substring(0, prev.length() - 1)) * Double.parseDouble(next);
+                        replacementStr = replacement+"x";
+                    }
+                    else if(next.endsWith("x")){
+                        replacement = Double.parseDouble(next.substring(0, next.length() - 1)) * Double.parseDouble(prev);
+                        replacementStr = replacement+"x";
+                    }
+                    else{
+                        replacement = Double.parseDouble(next) * Double.parseDouble(prev);
+                        replacementStr = replacement+"";
+                    }
+                    
+                    StringBuilder buf = new StringBuilder(equation);
+                    //Replace the old terms with a new term in the equation string
+                    buf.replace(startIndex, endIndex+1, replacementStr);
+                    
+                    //Call function recursively with the shortened string
+                    expanded = expandDM(x, buf.toString());
+                    return expanded;
+                }
+                case "/":
+                { 
+                    if(prev.endsWith("x") && next.endsWith("x")){
+                        replacement = (double)Math.round(Double.parseDouble(prev.substring(0, prev.length() - 1)) / Double.parseDouble(next.substring(0, next.length() - 1)));
+                        replacementStr = replacement+"x";
+                    }
+                    else if(prev.endsWith("x")){
+                        replacement = (double)Math.round(Double.parseDouble(prev.substring(0, prev.length() - 1)) / Double.parseDouble(next));
+                        replacementStr = replacement+"x";
+                    }
+                    else if(next.endsWith("x")){
+                        replacement = Double.parseDouble(prev) / Double.parseDouble(next.substring(0, next.length() - 1));
+                        replacementStr = replacement+"x";
+                    }
+                    else{
+                        replacement = Double.parseDouble(prev) / Double.parseDouble(next);
+                        replacementStr = replacement+"";
+                    }
+                    StringBuilder buf = new StringBuilder(equation);
+                    buf.replace(startIndex, endIndex+1, replacementStr);
+                    
+                    expanded = expandDM(x, buf.toString());
+                    return expanded;
+                }
+                default:
+                    //When the algorithm has reached the end of the equation, return the shortened string back down the recursive "tree"
+                    if(!equationScanner.hasNext()){
+                        return equation;
+                    }   break;
+            }
+            prev = currentWorkingTerm;
+            startIndex = equation.indexOf(prev);
+        }
+        return expanded;
     }
     
     //Method for evaluating whether string is numerical
@@ -83,6 +191,20 @@ class Solver {
             }
         }
         return size > 0;
+    }
+    
+    //For the BOdmas part (coming soon)
+    public static int countBrackets(String substring) {
+        int count = 0;
+        for (int i = 0; i < substring.length(); i++){
+            if (substring.charAt(i)=='('){
+                count++;
+            }
+            if (substring.charAt(i)==')'){
+                count--;
+            }
+        }
+        return 1;
     }
     
     public static double[] solveQuadraticFor(double a, double b, double c){
