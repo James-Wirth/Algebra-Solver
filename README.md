@@ -2,12 +2,12 @@
 
 ## Usage ##
 
-The linear equation function can be used by passing in the unknown variable letter and the equation, with terms and operators separated by spaces. At the moment, only '+' and '-' operators can be used.
+The class 'Solver' in 'src/Solver.java' can currently be used to solve linear equations containing '+', '-', '*' & '/'.  
+For instance:
 
-`double solution = Solver.solveLinearEquationFor("x", "2x + 5 - 7x = 24 + 6x");`
+`double solution = Solver.solveLinearEquationFor("x", "2x * 5 - 7x = 24 + 6x / 2x + 4");`
 
-Using the quadratic formula solver:
+There is also a small quadratic solver function, which passes the solutions into a double array of length 2, given the coefficients of x a, b & c:
 
 `double[] solutions = Solver.solveQuadraticFor(a, b, c)`
 
-where a, b & c are the coefficients of the zeroed quadratic equation.
